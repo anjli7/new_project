@@ -1,10 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\UserController;
 use App\Http\Controllers\CommanController;
 use App\Http\Controllers\TdsController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\UsersController;
@@ -20,13 +20,13 @@ use App\Http\Controllers\User\UserProfileController;
 
 
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
 
-Route::get('/home', [CommanController::class, 'Home'])->name('home');
-Route::post('/home', [CommanController::class, 'InsertHome'])->name('home.InsertHome');
+Route::get('/', [CommanController::class, 'Home'])->name('home');
+Route::post('/', [CommanController::class, 'InsertHome'])->name('home.InsertHome');
 
 Route::get('/about', [CommanController::class, 'About'])->name('about');
 Route::post('/about', [CommanController::class, 'InsertAbout'])->name('about.InsertAbout');
@@ -52,7 +52,7 @@ Route::post('/TDS', [TdsController::class, 'calculate'])->name('TDS.calculate');
 
 
 
-Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth','role:admin'])->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/users', [UsersController::class, 'index'])->name('users');
     Route::get('/applications', [ApplicationController::class, 'index'])->name('applications');
@@ -67,7 +67,7 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
 });
 
 
-Route::prefix('user')->name('user.')->middleware('auth')->group(function () {
+Route::prefix('user')->name('user.')->middleware(['auth','role:user'])->group(function () {
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
     Route::get('/my-application', [MyApplicationController::class, 'index'])->name('myapplication');
     Route::get('/new-application', [NewApplicationController::class, 'index'])->name('newapplication');
@@ -76,14 +76,19 @@ Route::prefix('user')->name('user.')->middleware('auth')->group(function () {
 
 
 
+// Route::prefix('staff')->name('staff.')->middleware(['auth','role:staff'])->group(function () {
+    // Route::get('/dashboard', [StaffController::class,'index'])->name('dashboard');
+    // Route::get('/applications', [ApplicationController::class,'staffIndex'])->name('applications.index');
+    // Route::get('/profile', [StaffController::class,'profile'])->name('profile.index');
+// });
+
+
+Route::get('/register', [RegistrationController::class, 'showRegistrationForm'])->name('register');
+Route::post('/register', [RegistrationController::class, 'register'])->name('register.post');
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 
 
 
 
 
-
-
-Route::get('/login', [AuthController::class, 'index'])->name('login');
-Route::post('/login', [AuthController::class, 'login'])->name('loginSubmit');
-Route::post('/register', [AuthController::class, 'register'])->name('registerSubmit');
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

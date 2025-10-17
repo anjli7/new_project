@@ -13,6 +13,7 @@
 body {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   color: var(--dark-color);
+  
 }
 
 
@@ -2306,7 +2307,7 @@ left: 0;
 }
 
 .auth-form-container .auth-form-box {
-  display: none;
+  /* display: none; */
   width: 50%;
   max-width: 550px;
   margin: 0 auto;
@@ -2425,12 +2426,12 @@ button:hover{
 
 /* Make Bootstrap close button always visible and neat */
 .btn-close {
-  opacity: 1 !important;              /* Always visible */
-  background: none !important;        /* Remove default background */
-  border: none !important;            /* No border */
-  color: #000 !important;             /* Black '×' symbol */
-  font-size: 1.2rem;                  /* Slightly larger symbol */
-  line-height: 1;                     /* Align properly */
+  opacity: 1 !important;             
+  background: none !important;        
+  border: none !important;            
+  color: #000 !important;            
+  font-size: 1.2rem;                 
+  line-height: 1;                     
 }
 
 /* Keep same look on hover/focus */
