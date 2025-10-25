@@ -1,378 +1,289 @@
+// Enhanced logout functionality and OTP system
 
 document.addEventListener('DOMContentLoaded', function() {
-    const monthlyBtn = document.getElementById('monthly-billing');
-    const annualBtn = document.getElementById('annual-billing');
-    const monthlyPrices = document.querySelectorAll('.monthly-price');
-    const annualPrices = document.querySelectorAll('.annual-price');
-    
-    monthlyBtn.addEventListener('click', function() {
-        monthlyBtn.classList.add('active');
-        annualBtn.classList.remove('active');
-        
-        monthlyPrices.forEach(price => price.style.display = 'inline');
-        annualPrices.forEach(price => price.style.display = 'none');
-    });
-    
-    annualBtn.addEventListener('click', function() {
-        annualBtn.classList.add('active');
-        monthlyBtn.classList.remove('active');
-        
-        annualPrices.forEach(price => price.style.display = 'inline');
-        monthlyPrices.forEach(price => price.style.display = 'none');
-    });
-});
+    // Enhanced logout functionality
+    const logoutForm = document.getElementById('logout-form');
+    const logoutLinks = document.querySelectorAll('a[href="#"][onclick*="logout"]');
 
-// testimonial1
+    // Handle logout confirmation and submission
+    logoutLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
 
-document.addEventListener('DOMContentLoaded', function () {
-    const container = document.getElementById('testimonialContainer');
-    const dots = document.querySelectorAll('.dot');
-    const totalSlides = dots.length;
-    let currentIndex = 0;
+            // Show confirmation dialog
+            if (confirm('Are you sure you want to logout?')) {
+                // Add loading state
+                this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Logging out...';
+                this.style.pointerEvents = 'none';
 
-    function goToSlide(index) {
-        container.style.transform = `translateX(-${index * 100}%)`;
-        dots.forEach(dot => dot.classList.remove('active'));
-        dots[index].classList.add('active');
-        currentIndex = index;
-    }
-
-    // Dot click logic
-    dots.forEach(dot => {
-        dot.addEventListener('click', function () {
-            goToSlide(parseInt(this.getAttribute('data-index')));
+                // Submit the form after a short delay for better UX
+                setTimeout(() => {
+                    logoutForm.submit();
+                }, 500);
+            }
         });
     });
 
-    // Auto slide every 5 seconds
-    setInterval(() => {
-        let nextIndex = (currentIndex + 1) % totalSlides;
-        goToSlide(nextIndex);
-    }, 5000); // 5000ms = 5 seconds
-});
+    // Auto-hide alerts after 5 seconds
+    // const alerts = document.querySelectorAll('.alert');
+    // alerts.forEach(alert => {
+    //     setTimeout(() => {
+    //         alert.style.opacity = '0';
+    //         setTimeout(() => {
+    //             alert.style.display = 'none';
+    //         }, 300);
+    //     }, 5000);
+    // });
 
-
-document.addEventListener('DOMContentLoaded', function () {
-    const form = document.getElementById('common-form');
-  
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-  
-      const name = form.elements['name'].value.trim();
-      const email = form.elements['email'].value.trim();
-      const message = form.elements['message'].value.trim();
-  
-      let hasError = false;
-  
-      // Reset styles
-      ['name', 'email', 'message'].forEach(field => {
-        form.elements[field].style.border = '';
-      });
-  
-      if (!name) {
-        form.elements['name'].style.border = '1px solid red';
-        hasError = true;
-      }
-  
-      if (!email || !isValidEmail(email)) {
-        form.elements['email'].style.border = '1px solid red';
-        hasError = true;
-      }
-  
-      if (!message) {
-        form.elements['message'].style.border = '1px solid red';
-        hasError = true;
-      }
-  
-      if (hasError) {
-        alert('Please fill all required fields correctly.');
-        return;
-      }
-  
-      alert('Form submitted successfully!');
-      form.reset();
-    });
-  
+    // Email validation function
     function isValidEmail(email) {
-      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      return re.test(email);
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        return emailRegex.test(email);
     }
-  });
-  
-  
 
-//  TDS  ------------------------------------------------------------------------
-
-function toggleFAQ(element) {
-    const answer = element.nextElementSibling;
-    const icon = element.querySelector('span');
-    
-    if (answer.classList.contains('show')) {
-        answer.classList.remove('show');
-        icon.textContent = '+';
-    } else {
-        answer.classList.add('show');
-        icon.textContent = '-';
+    // Real-time email validation for login form
+    const loginEmailInput = document.querySelector('input[name="email"]');
+    if (loginEmailInput) {
+        loginEmailInput.addEventListener('blur', function() {
+            const email = this.value.trim();
+            if (email && !isValidEmail(email)) {
+                this.classList.add('is-invalid');
+                if (!this.nextElementSibling || !this.nextElementSibling.classList.contains('invalid-feedback')) {
+                    const feedback = document.createElement('div');
+                    feedback.className = 'invalid-feedback';
+                    feedback.textContent = 'Please enter a valid email address format.';
+                    this.parentNode.insertBefore(feedback, this.nextSibling);
+                }
+            } else {
+                this.classList.remove('is-invalid');
+                const feedback = this.nextElementSibling;
+                if (feedback && feedback.classList.contains('invalid-feedback')) {
+                    feedback.remove();
+                }
+            }
+        });
     }
-}
 
-function calculateTDS() {
-    const paymentType = document.getElementById('paymentType').value;
-    const amount = parseFloat(document.getElementById('amount').value);
-    
-    if (isNaN(amount)){
-        alert('Please enter a valid amount');
-        return;
-    }    
-    let rate = 0;
-    let threshold = 0;
-    
-    switch(paymentType) {
-        case '194':
-            rate = 10;
-            threshold = 5000;
-            break;
-        case '194A':
-            rate = 10;
-            threshold = 40000;
-            break;
-        case '194C':
-            rate = 1; // Assuming individual/HUF
-            threshold = 30000;
-            break;
-        case '194H':
-            rate = 5;
-            threshold = 15000;
-            break;
-        case '194I':
-            rate = 2; // Assuming land/building
-            threshold = 240000;
-            break;
-        case '194J':
-            rate = 10;
-            threshold = 30000;
-            break;
+    // Real-time email validation for registration form
+    const registerEmailInput = document.querySelector('form[action*="register"] input[name="email"]');
+    if (registerEmailInput) {
+        registerEmailInput.addEventListener('blur', function() {
+            const email = this.value.trim();
+            if (email && !isValidEmail(email)) {
+                this.classList.add('is-invalid');
+                if (!this.nextElementSibling || !this.nextElementSibling.classList.contains('invalid-feedback')) {
+                    const feedback = document.createElement('div');
+                    feedback.className = 'invalid-feedback';
+                    feedback.textContent = 'Please enter a valid email address format.';
+                    this.parentNode.insertBefore(feedback, this.nextSibling);
+                }
+            } else {
+                this.classList.remove('is-invalid');
+                const feedback = this.nextElementSibling;
+                if (feedback && feedback.classList.contains('invalid-feedback')) {
+                    feedback.remove();
+                }
+            }
+        });
     }
-    
-    let tds = 0;
-    if (amount > threshold) {
-        tds = (amount * rate) / 100;
+
+    // OTP input formatting and validation
+    const otpInput = document.getElementById('otp');
+    if (otpInput) {
+        otpInput.addEventListener('input', function(e) {
+            // Only allow numbers
+            this.value = this.value.replace(/[^0-9]/g, '');
+
+            // Limit to 6 digits
+            if (this.value.length >= 6) {
+                this.value = this.value.substring(0, 6);
+            }
+        });
+
+        otpInput.addEventListener('keydown', function(e) {
+            // Allow backspace, delete, tab, escape, enter
+            if (e.key === 'Backspace' || e.key === 'Delete' || e.key === 'Tab' || e.key === 'Escape' || e.key === 'Enter') {
+                return;
+            }
+            // Prevent non-numeric input
+            if (!/[0-9]/.test(e.key)) {
+                e.preventDefault();
+            }
+        });
     }
-    
-    const netPayment = amount - tds;
-    
-    document.getElementById('tdsAmount').innerHTML = `<strong>TDS Amount:</strong> ₹${tds.toFixed(2)} (${rate}%)`;
-    document.getElementById('netPayment').innerHTML = `<strong>Net Payment:</strong> ₹${netPayment.toFixed(2)}`;
-    
-    document.getElementById('result').style.display = 'block';
-}
 
+    // Form validation for contact forms
+    const commonForm = document.getElementById('common-form');
+    if (commonForm) {
+        commonForm.addEventListener('submit', function (e) {
+            e.preventDefault();
 
-// second-form  --------------------------------------------------------------
+            const name = commonForm.elements['name'].value.trim();
+            const email = commonForm.elements['email'].value.trim();
+            const message = commonForm.elements['message'].value.trim();
 
-(function() {
-    'use strict';
-    
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    const form = document.getElementById('ServiceForm');
+            let hasError = false;
 
-    const forms = document.querySelectorAll('.ajaxForm');
+            // Reset styles
+            ['name', 'email', 'message'].forEach(field => {
+                commonForm.elements[field].style.border = '';
+            });
 
-    if (form) {
-        form.addEventListener('submit', function(event) {
-            event.preventDefault();
+            if (!name) {
+                commonForm.elements['name'].style.border = '1px solid red';
+                hasError = true;
+            }
 
-            if (!form.checkValidity()) {
-                event.stopPropagation();
-                form.classList.add('was-validated');
+            if (!email || !isValidEmail(email)) {
+                commonForm.elements['email'].style.border = '1px solid red';
+                hasError = true;
+            }
+
+            if (!message) {
+                commonForm.elements['message'].style.border = '1px solid red';
+                hasError = true;
+            }
+
+            if (hasError) {
+                alert('Please fill all required fields correctly.');
                 return;
             }
 
-            const formData = new FormData(form);
-            const actionUrl = form.getAttribute('action');
-
-            fetch(actionUrl, {
-                method: "POST",
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken
-                },
-                body: formData
-            })
-            .then(response => response.json())  
-            .then(data => {                     
-                if (data.success) {
-                    const successModal = new bootstrap.Modal(document.getElementById('successModal'));
-                    successModal.show();
-                    form.reset();
-                    form.classList.remove('was-validated');
-                } else {
-                    alert("Error: " + (data.error || "Failed to submit form."));
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('There was an error submitting the form.');
-            });
-        }, false);
-    }
-
-})();
-
-// --------------------------------User Panel--------------------------------------
-
-        // Add interactivity to the user panel
-        document.addEventListener('DOMContentLoaded', function() {
-            // Highlight active menu item
-            const menuItems = document.querySelectorAll('.menu-item');
-            menuItems.forEach(item => {
-                item.addEventListener('click', function() {
-                    menuItems.forEach(i => i.classList.remove('active'));
-                    this.classList.add('active');
-                });
-            });
-            
-            // Simulate login functionality
-            const userInfo = document.querySelector('.user-info');
-            userInfo.addEventListener('click', function() {
-                alert('User profile options would appear here');
-            });
+            alert('Form submitted successfully!');
+            commonForm.reset();
         });
-        // --------------------------login -------------------------------------
-  
-// document.addEventListener('DOMContentLoaded', function() {
-//     // Unique class names for login/register forms
-//     const loginForm = document.querySelector(".auth-form-box#login-form");
-//     const registerForm = document.querySelector(".auth-form-box#register-form");
-
-//     function showAuthForm(formId) {
-//         // Hide all auth forms
-//         document.querySelectorAll(".auth-form-box").forEach(form => {
-//             form.classList.remove("auth-form-active");
-//         });
-
-//         // Show the requested form
-//         const formToShow = document.getElementById(formId);
-//         if (formToShow) {
-//             formToShow.classList.add("auth-form-active");
-//         }
-//     }
-
-
-//     // Add click handlers for login/register links
-//     document.querySelectorAll("[data-auth-form-toggle]").forEach(link => {
-//         link.addEventListener('click', function(e) {
-//             e.preventDefault();
-//             const targetForm = this.getAttribute('data-auth-form-toggle');
-//             showAuthForm(targetForm);
-//         });
-//     });
-
-//     // Initialize the correct form
-//     if (loginForm && registerForm) {
-//         // Check which form should be active initially
-//         if (loginForm.classList.contains("auth-form-active") || 
-//             registerForm.classList.contains("auth-form-active")) {
-//             // Already initialized
-//         } else {
-//             // Default to showing login form
-//             loginForm.classList.add("auth-form-active");
-//         }
-//     }
-// });
-
-// -----------------change_password-------------
-
-// Toggle password visibility
-function togglePassword(fieldId) {
-    const field = document.getElementById(fieldId);
-    const icon = document.getElementById(fieldId + '_icon');
-    
-    if (field.type === 'password') {
-        field.type = 'text';
-        icon.classList.remove('fa-eye');
-        icon.classList.add('fa-eye-slash');
-    } else {
-        field.type = 'password';
-        icon.classList.remove('fa-eye-slash');
-        icon.classList.add('fa-eye');
-    }
-}
-
-
-// Check if passwords match
-function checkPasswordMatch() {
-    const newPassword = document.getElementById('new_password').value;
-    const confirmPassword = document.getElementById('confirm_password').value;
-    const matchIndicator = document.getElementById('match-indicator');
-    const submitBtn = document.getElementById('submitBtn');
-    
-    if (confirmPassword === '') {
-        matchIndicator.innerHTML = '';
-        submitBtn.disabled = false;
-        return;
-    }
-    
-    if (newPassword === confirmPassword) {
-        matchIndicator.innerHTML = '<i class="fas fa-check me-1"></i>Passwords match';
-        matchIndicator.className = 'match-indicator match-success';
-        submitBtn.disabled = false;
-    } else {
-        matchIndicator.innerHTML = '<i class="fas fa-times me-1"></i>Passwords do not match';
-        matchIndicator.className = 'match-indicator match-error';
-        submitBtn.disabled = true;
-    }
-}
-
-// Form submission validation
-document.getElementById('passwordForm').addEventListener('submit', function(e) {
-    const newPassword = document.getElementById('new_password').value;
-    const confirmPassword = document.getElementById('confirm_password').value;
-    
-    if (newPassword !== confirmPassword) {
-        e.preventDefault();
-        alert('Passwords do not match!');
-        return false;
     }
 
+    // TDS Calculator functionality
+    const calculateTDS = function() {
+        const paymentType = document.getElementById('paymentType').value;
+        const amount = parseFloat(document.getElementById('amount').value);
+
+        if (isNaN(amount)){
+            alert('Please enter a valid amount');
+            return;
+        }
+        let rate = 0;
+        let threshold = 0;
+
+        switch(paymentType) {
+            case '194':
+                rate = 10;
+                threshold = 5000;
+                break;
+            case '194A':
+                rate = 10;
+                threshold = 40000;
+                break;
+            case '194C':
+                rate = 1; // Assuming individual/HUF
+                threshold = 30000;
+                break;
+            case '194H':
+                rate = 5;
+                threshold = 15000;
+                break;
+            case '194I':
+                rate = 2; // Assuming land/building
+                threshold = 240000;
+                break;
+            case '194J':
+                rate = 10;
+                threshold = 30000;
+                break;
+        }
+
+        let tds = 0;
+        if (amount > threshold) {
+            tds = (amount * rate) / 100;
+        }
+
+        const netPayment = amount - tds;
+
+        document.getElementById('tdsAmount').innerHTML = `<strong>TDS Amount:</strong> ₹${tds.toFixed(2)} (${rate}%)`;
+        document.getElementById('netPayment').innerHTML = `<strong>Net Payment:</strong> ₹${netPayment.toFixed(2)}`;
+
+        document.getElementById('result').style.display = 'block';
+    };
+
+    // Make calculateTDS function global
+    window.calculateTDS = calculateTDS;
+
+    // FAQ toggle functionality
+    const toggleFAQ = function(element) {
+        const answer = element.nextElementSibling;
+        const icon = element.querySelector('span');
+
+        if (answer.classList.contains('show')) {
+            answer.classList.remove('show');
+            icon.textContent = '+';
+        } else {
+            answer.classList.add('show');
+            icon.textContent = '-';
+        }
+    };
+
+    // Make toggleFAQ function global
+    window.toggleFAQ = toggleFAQ;
+
+    // Password toggle functionality
+    const togglePassword = function(fieldId) {
+        const field = document.getElementById(fieldId);
+        const icon = document.getElementById(fieldId + '_icon');
+
+        if (field.type === 'password') {
+            field.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            field.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    };
+
+    // Make togglePassword function global
+    window.togglePassword = togglePassword;
+
+    // Password match validation
+    const checkPasswordMatch = function() {
+        const newPassword = document.getElementById('new_password').value;
+        const confirmPassword = document.getElementById('confirm_password').value;
+        const matchIndicator = document.getElementById('match-indicator');
+        const submitBtn = document.getElementById('submitBtn');
+
+        if (confirmPassword === '') {
+            matchIndicator.innerHTML = '';
+            submitBtn.disabled = false;
+            return;
+        }
+
+        if (newPassword === confirmPassword) {
+            matchIndicator.innerHTML = '<i class="fas fa-check me-1"></i>Passwords match';
+            matchIndicator.className = 'match-indicator match-success';
+            submitBtn.disabled = false;
+        } else {
+            matchIndicator.innerHTML = '<i class="fas fa-times me-1"></i>Passwords do not match';
+            matchIndicator.className = 'match-indicator match-error';
+            submitBtn.disabled = true;
+        }
+    };
+
+    // Make checkPasswordMatch function global
+    window.checkPasswordMatch = checkPasswordMatch;
+
+    // Form submission validation
+    const passwordForm = document.getElementById('passwordForm');
+    if (passwordForm) {
+        passwordForm.addEventListener('submit', function(e) {
+            const newPassword = document.getElementById('new_password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
+
+            if (newPassword !== confirmPassword) {
+                e.preventDefault();
+                alert('Passwords do not match!');
+                return false;
+            }
+        });
+    }
 });
-
-// login-------------
-
-    
-// document.addEventListener('DOMContentLoaded', function() {
-//     // Unique class names for login/register forms
-//     const loginForm = document.querySelector(".auth-form-box#login-form");
-//     const registerForm = document.querySelector(".auth-form-box#register-form");
-//     function showAuthForm(formId) {
-//         // Hide all auth forms
-//         document.querySelectorAll(".auth-form-box").forEach(form => {
-//             form.classList.remove("auth-form-active");
-//         });
-//         // Show the requested form
-//         const formToShow = document.getElementById(formId);
-//         if (formToShow) {
-//             formToShow.classList.add("auth-form-active");
-//         }
-//     }
-//     // Add click handlers for login/register links
-//     document.querySelectorAll("[data-auth-form-toggle]").forEach(link => {
-//         link.addEventListener('click', function(e) {
-//             e.preventDefault();
-//             const targetForm = this.getAttribute('data-auth-form-toggle');
-//             showAuthForm(targetForm);
-//         });
-//     });
-//     // Initialize the correct form
-//     if (loginForm && registerForm) {
-//         // Check which form should be active initially
-//         if (loginForm.classList.contains("auth-form-active") || 
-//             registerForm.classList.contains("auth-form-active")) {
-//             // Already initialized
-//         } else {
-//             // Default to showing login form
-//             loginForm.classList.add("auth-form-active");
-//         }
-//     }
-// });
-
-

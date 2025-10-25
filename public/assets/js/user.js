@@ -178,3 +178,13 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initial state check
     checkAllDocumentsUploaded();
 });
+
+// Profile image preview function
+function previewImage(event) {
+    var reader = new FileReader();
+    reader.onload = function(){
+        var output = document.getElementById('preview');
+        output.src = reader.result;
+    };
+    reader.readAsDataURL(event.target.files[0]);
+}

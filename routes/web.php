@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\ApplicationController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\ServiceController;
+use App\Http\Controllers\MediaFileController;
 use App\Http\Controllers\User\UserDashboardController;
 use App\Http\Controllers\User\MyApplicationController;
 use App\Http\Controllers\User\NewApplicationController;
@@ -52,8 +53,8 @@ Route::post('/TDS', [TdsController::class, 'calculate'])->name('TDS.calculate');
 
 
 
-Route::prefix('admin')->name('admin.')->middleware(['auth','role:admin'])->group(function () {
-    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
+Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/users', [UsersController::class, 'index'])->name('users');
     Route::get('/applications', [ApplicationController::class, 'index'])->name('applications');
 
@@ -64,14 +65,19 @@ Route::prefix('admin')->name('admin.')->middleware(['auth','role:admin'])->group
     Route::delete('/service/{id}', [ServiceController::class, 'destroy'])->name('service.destroy');
 
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+
 });
 
 
-Route::prefix('user')->name('user.')->middleware(['auth','role:user'])->group(function () {
+Route::prefix('user')->name('user.')->middleware(['auth'])->group(function () {
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
     Route::get('/my-application', [MyApplicationController::class, 'index'])->name('myapplication');
     Route::get('/new-application', [NewApplicationController::class, 'index'])->name('newapplication');
     Route::get('/profile', [UserProfileController::class, 'index'])->name('profile');
+    Route::post('/profile', [UserProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/delete-photo', [UserProfileController::class, 'deletePhoto'])->name('profile.delete.photo');
+
+    
 });
 
 
@@ -87,6 +93,15 @@ Route::get('/register', [RegistrationController::class, 'showRegistrationForm'])
 Route::post('/register', [RegistrationController::class, 'register'])->name('register.post');
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
+
+// Password Reset Routes (OTP-based Implementation)
+Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm'])->name('password.forgot');
+Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('password.email');
+Route::get('/reset-password-otp', [AuthController::class, 'showResetOTPForm'])->name('password.reset.otp');
+Route::post('/reset-password-otp', [AuthController::class, 'verifyResetOTP'])->name('password.reset.verify');
+Route::get('/reset-password-form', [AuthController::class, 'showResetForm'])->name('password.reset.form');
+Route::post('/reset-password-form', [AuthController::class, 'resetPassword'])->name('password.update');
 
 
 

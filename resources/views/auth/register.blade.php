@@ -1,4 +1,3 @@
-
 @extends('layouts.app')
 
 @section('content')
@@ -10,7 +9,7 @@
                 <div class="card shadow-sm">
                     <div class="card-body p-4">
                         <h2 class="card-title text-center mb-4 custom-heading">Register</h2>
-                    
+
                         @if (session('success'))
                             <div class="alert alert-success">
                                 {{ session('success') }}
@@ -26,17 +25,27 @@
                                 </ul>
                             </div>
                         @endif
+
                         <form action="{{ route('register.post') }}" method="post">
                             @csrf
                             <input type="text" class="form-control mb-3 @error('name') is-invalid @enderror" name="name" placeholder="Name" required value="{{ old('name') }}">
+                           
+
                             <input type="email" class="form-control mb-3 @error('email') is-invalid @enderror" name="email" placeholder="Email" required value="{{ old('email') }}">
+                         
+
                             <input type="tel" class="form-control mb-3 @error('number') is-invalid @enderror" name="number" placeholder="Mobile" required value="{{ old('number') }}">
+                         
+
                             <input type="password" class="form-control mb-3 @error('password') is-invalid @enderror" name="password" placeholder="Password" required>
+               
                             <input type="password" class="form-control mb-3" name="password_confirmation" placeholder="Confirm Password" required>
+
                             <button type="submit" name="register" class="btn custom-btn w-100">Register</button>
                         </form>
+
                         <p class="text-center mt-3">
-                            Already have an account? 
+                            Already have an account?
                             <a href="{{ route('login') }}" class="text-decoration-none">Login</a>
                         </p>
                     </div>

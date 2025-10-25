@@ -11,8 +11,9 @@ class UserDashboardController extends Controller
 {
     public function index( Request $request)
     {
-     
-        return view('user.dashboard');
+       // echo 'test';
+        //return false ;
+       return view('user.dashboard');
     }
 }
 

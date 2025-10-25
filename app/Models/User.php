@@ -2,14 +2,13 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
     /**
@@ -23,7 +22,10 @@ class User extends Authenticatable
         'password',
         'role',
         'number',
-        'remember_token', // Add this for authentication
+        'email_verified_at',
+        'remember_token',
+        'password_reset_otp',
+        'password_reset_expires_at',
     ];
 
     /**
@@ -45,7 +47,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            // Remove automatic password hashing to handle existing passwords
+            'password_reset_expires_at' => 'datetime',
         ];
     }
 
@@ -79,10 +81,46 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if user is regular user
+     * Generate password reset OTP
      */
-    public function isUser(): bool
+    public function generatePasswordResetOTP(): string
     {
-        return $this->role === 'user' || $this->role === null;
+        $otp = str_pad(random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
+
+        $this->update([
+            'password_reset_otp' => $otp,
+            'password_reset_expires_at' => now()->addMinutes(10) // OTP expires in 10 minutes
+        ]);
+
+        return $otp;
+    }
+
+    /**
+     * Verify password reset OTP
+     */
+    public function verifyPasswordResetOTP(string $otp): bool
+    {
+        return $this->password_reset_otp === $otp &&
+               $this->password_reset_expires_at &&
+               $this->password_reset_expires_at->isFuture();
+    }
+
+    /**
+     * Clear password reset OTP
+     */
+    public function clearPasswordResetOTP(): void
+    {
+        $this->update([
+            'password_reset_otp' => null,
+            'password_reset_expires_at' => null
+        ]);
+    }
+
+    /**
+     * Check if password reset OTP is expired
+     */
+    public function isPasswordResetOTPExpired(): bool
+    {
+        return !$this->password_reset_expires_at || $this->password_reset_expires_at->isPast();
     }
 }

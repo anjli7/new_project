@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Login;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -18,31 +18,36 @@ class RegistrationController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'number' => 'required',
+            'email' => [
+                'required',
+                'email',
+                'unique:users',
+                'max:255',
+                'regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/'
+            ],
+            'number' => 'required|string|max:15',
             'password' => [
                 'required',
                 'string',
-                'min:8',
+                'min:6',
                 'confirmed',
-                'regex:/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/',
-
             ],
         ], [
-            'password.regex' => 'Password must contain at least one letter, one number, and one special character.'
+            'email.regex' => 'Please enter a valid email address format.',
         ]);
 
-        Login::create([
+        $password = $data['password'];
+         $is_strong = preg_match('/[0-9]/', $password) && preg_match('/[A-Za-z]/', $password) && preg_match('/[^A-Za-z0-9]/', $password);
+
+        User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'number' => $data['number'],
             'password' => Hash::make($data['password']),
-            'email_verified_at' => now(),                      
             'remember_token' => Str::random(10),
             'role' => 'user',
-
         ]);
 
-        return redirect()->route('login')->with('success', 'Registration successful! Please log in.');
+        return redirect()->route('login')->with('success', 'Registration successful! You can now log in.');
     }
 }
